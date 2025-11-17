@@ -477,6 +477,148 @@ async def clear_timers(ctx):
         await ctx.send("Failed to clear timers. Please try again.")
 
 
+@bot.command(name='whacked')
+async def whacked(ctx, player_name: str = None):
+    """
+    Quick command to record a pro whack using current time.
+    Usage: !whacked PlayerName  OR  !whacked (uses your name)
+    Example: !whacked Mucci
+    """
+    try:
+        # Use provided name or command invoker's name
+        if player_name is None:
+            player_name = ctx.author.name
+
+        # Get current time
+        now = datetime.now(timezone.utc)
+
+        logger.info(f"User {ctx.author.name} invoked !whacked for {player_name}")
+
+        payload = {
+            "user_name": player_name,
+            "timer_type": "pro_whack",
+            "time_shot": now.isoformat()
+        }
+
+        headers = {"X-API-Key": API_KEY} if API_KEY else {}
+        response = make_api_request_with_retry(f"{API_URL}/timers/", payload, headers)
+
+        if response.status_code == 200:
+            # Calculate Pro Drop time
+            pro_drop = now + timedelta(minutes=15)
+
+            logger.info(f"Pro whack timer recorded for {player_name}")
+            await ctx.send(
+                f"💀 **{player_name}** was whacked at `{now.strftime('%H:%M:%S')}`\n"
+                f"└─ **Pro Drop:** `{pro_drop.strftime('%H:%M:%S')}`"
+            )
+        else:
+            logger.error(f"API error: status {response.status_code}")
+            await ctx.send(f"Error recording timer. Please try again.")
+
+    except requests.RequestException as e:
+        logger.error(f"Network error: {e}")
+        await ctx.send("Failed to connect to the API. Please try again later.")
+    except Exception as e:
+        logger.error(f"Unexpected error in whacked: {e}", exc_info=True)
+        await ctx.send(f"An unexpected error occurred. Please contact an administrator.")
+
+
+@bot.command(name='hit')
+async def hit(ctx, player_name: str = None):
+    """
+    Quick command to record a friendly hit using current time.
+    Usage: !hit PlayerName  OR  !hit (uses your name)
+    Example: !hit Mucci
+    """
+    try:
+        # Use provided name or command invoker's name
+        if player_name is None:
+            player_name = ctx.author.name
+
+        # Get current time
+        now = datetime.now(timezone.utc)
+
+        logger.info(f"User {ctx.author.name} invoked !hit for {player_name}")
+
+        payload = {
+            "user_name": player_name,
+            "timer_type": "friendly_hit",
+            "time_shot": now.isoformat()
+        }
+
+        headers = {"X-API-Key": API_KEY} if API_KEY else {}
+        response = make_api_request_with_retry(f"{API_URL}/timers/", payload, headers)
+
+        if response.status_code == 200:
+            # Calculate Pro Drop window
+            pro_start = now + timedelta(hours=3, minutes=40)
+            pro_end = now + timedelta(hours=4, minutes=20)
+
+            logger.info(f"Friendly hit timer recorded for {player_name}")
+            await ctx.send(
+                f"🛡️ **{player_name}** was hit at `{now.strftime('%H:%M:%S')}`\n"
+                f"└─ **Pro Drop (safe window):** `{pro_start.strftime('%H:%M:%S')}` - `{pro_end.strftime('%H:%M:%S')}`"
+            )
+        else:
+            logger.error(f"API error: status {response.status_code}")
+            await ctx.send(f"Error recording timer. Please try again.")
+
+    except requests.RequestException as e:
+        logger.error(f"Network error: {e}")
+        await ctx.send("Failed to connect to the API. Please try again later.")
+    except Exception as e:
+        logger.error(f"Unexpected error in hit: {e}", exc_info=True)
+        await ctx.send(f"An unexpected error occurred. Please contact an administrator.")
+
+
+@bot.command(name='enemy')
+async def enemy(ctx, player_name: str = None):
+    """
+    Quick command to record an enemy hit using current time.
+    Usage: !enemy PlayerName  OR  !enemy (uses your name)
+    Example: !enemy Mucci
+    """
+    try:
+        # Use provided name or command invoker's name
+        if player_name is None:
+            player_name = ctx.author.name
+
+        # Get current time
+        now = datetime.now(timezone.utc)
+
+        logger.info(f"User {ctx.author.name} invoked !enemy for {player_name}")
+
+        payload = {
+            "user_name": player_name,
+            "timer_type": "enemy_hit",
+            "time_shot": now.isoformat()
+        }
+
+        headers = {"X-API-Key": API_KEY} if API_KEY else {}
+        response = make_api_request_with_retry(f"{API_URL}/timers/", payload, headers)
+
+        if response.status_code == 200:
+            # Calculate Pro Drop start
+            pro_start = now + timedelta(hours=3, minutes=40)
+
+            logger.info(f"Enemy hit timer recorded for {player_name}")
+            await ctx.send(
+                f"⚔️ **{player_name}** got hit by enemy at `{now.strftime('%H:%M:%S')}`\n"
+                f"└─ **Enemy Pro Drop starts:** `{pro_start.strftime('%H:%M:%S')}`"
+            )
+        else:
+            logger.error(f"API error: status {response.status_code}")
+            await ctx.send(f"Error recording timer. Please try again.")
+
+    except requests.RequestException as e:
+        logger.error(f"Network error: {e}")
+        await ctx.send("Failed to connect to the API. Please try again later.")
+    except Exception as e:
+        logger.error(f"Unexpected error in enemy: {e}", exc_info=True)
+        await ctx.send(f"An unexpected error occurred. Please contact an administrator.")
+
+
 if __name__ == "__main__":
     if TOKEN is None:
         logger.error("DISCORD_TOKEN not found. Make sure to set it in your .env file.")

@@ -84,12 +84,23 @@ python bot.py
 
 ### Discord Commands
 
-**Timer Commands:**
-- `!im_hit HH:MM:SS` - Record a friendly hit timer
+**Quick Commands (Auto-capture current time):**
+- `!whacked Mucci` - Record a pro whack for Mucci with current time
+  - Bot responds: "💀 Mucci was whacked at 14:30:25 - Pro Drop: 14:45:25"
+  - Can also use: `!whacked` (uses your Discord name)
+- `!hit Mucci` - Record a friendly hit for Mucci with current time
+  - Bot responds: "🛡️ Mucci was hit at 14:30:25 - Pro Drop (safe window): 18:10:25 - 18:50:25"
+  - Can also use: `!hit` (uses your Discord name)
+- `!enemy Mucci` - Record an enemy hit for Mucci with current time
+  - Bot responds: "⚔️ Mucci got hit by enemy at 14:30:25 - Enemy Pro Drop starts: 18:10:25"
+  - Can also use: `!enemy` (uses your Discord name)
+
+**Manual Time Commands:**
+- `!im_hit HH:MM:SS` - Record a friendly hit timer with specific time
   - Example: `!im_hit 14:30:25`
-- `!pro_whack HH:MM:SS` - Record a pro whack timer
+- `!pro_whack HH:MM:SS` - Record a pro whack timer with specific time
   - Example: `!pro_whack 09:15:30`
-- `!enemy_hit HH:MM:SS` - Record an enemy hit timer
+- `!enemy_hit HH:MM:SS` - Record an enemy hit timer with specific time
   - Example: `!enemy_hit 12:45:00`
 
 **Dashboard Commands:**
@@ -98,6 +109,7 @@ python bot.py
 
 **Features:**
 - **Live Dashboard**: Auto-updates every 5 seconds with all active timers
+- **Instant Responses**: Bot tells you the Pro Drop time immediately
 - **Pro Drop Alerts**: Automatically alerts users 5-10 minutes before their Pro Drop window
 - **Timezone Aware**: All timestamps are UTC-based
 
@@ -133,9 +145,38 @@ All endpoints require an `X-API-Key` header with a valid API key.
   - Pro Drop Start: Time Shot + 3h 40m
   - No end time (enemy window)
 
+## Desktop App
+
+A native Python desktop application is available for quick timer entry with instant Discord updates.
+
+**Features:**
+- Native desktop window (no browser needed)
+- Quick timer entry with one-click buttons
+- "Use Now" button for current time
+- Real-time display of all active timers
+- Auto-refreshes every 5 seconds
+- Instant sync with Discord bot
+
+**Usage:**
+```bash
+python timer_app.py
+```
+
+The app window will open showing:
+- Input fields for player name and time
+- Three big buttons: 🛡️ Friendly Hit, 💀 Pro Whack, ⚔️ Enemy Hit
+- Live display of all active timers with Pro Drop calculations
+- Auto-refresh status
+
+When you click a button, the timer is:
+1. Sent to the API
+2. Saved to the database
+3. Instantly appears on Discord dashboard
+4. Shows in the desktop app
+
 ## Web App
 
-A web-based dashboard is available at `http://127.0.0.1:8000/web/` when the API server is running.
+A web-based dashboard is also available at `http://127.0.0.1:8000/web/` when the API server is running.
 
 **Features:**
 - Real-time timer display with auto-refresh (5 seconds)
