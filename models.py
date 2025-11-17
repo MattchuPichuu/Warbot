@@ -90,11 +90,11 @@ class TimerResponse(BaseModel):
         timer_type = values['timer_type']
         time_shot = values['time_shot']
 
-        if timer_type == 'friendly_hit':
-            # Friendly Hit: Pro Drop End = Time + 4h 20m
+        if timer_type == 'friendly_hit' or timer_type == 'enemy_hit':
+            # Both Friendly Hit and Enemy Hit: Pro Drop End = Time + 4h 20m
             return time_shot + timedelta(hours=4, minutes=20)
         elif timer_type == 'pro_whack':
-            # Pro Whack: Single time, end = start
+            # Pro Whack: Single time, end = start (15 min)
             return time_shot + timedelta(minutes=15)
-        # Enemy Hit doesn't have an end time
+
         return None

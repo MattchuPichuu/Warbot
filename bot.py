@@ -164,21 +164,23 @@ def format_timer_dashboard(timers):
         table += "```"
         embed.add_field(name="💀 PRO WHACKS", value=table, inline=False)
 
-    # Format enemy hits as table
+    # Format enemy hits as table (same format as friendly hits)
     if enemy_hits:
         table = "```\n"
-        table += "PLAYER          HIT TIME   PRO DROP START\n"
-        table += "═══════════════════════════════════════════\n"
+        table += "PLAYER          HIT TIME   PRO DROP START  PRO DROP END\n"
+        table += "═══════════════════════════════════════════════════════\n"
 
         for timer in enemy_hits[:15]:
             name = timer['user_name'][:14].ljust(14)
             time_shot = datetime.fromisoformat(timer['time_shot'].replace('Z', '+00:00'))
             hit_time = time_shot.strftime('%H:%M:%S')
 
-            if timer.get('pro_drop_start'):
+            if timer.get('pro_drop_start') and timer.get('pro_drop_end'):
                 pro_start = datetime.fromisoformat(timer['pro_drop_start'].replace('Z', '+00:00'))
-                start_time = pro_start.strftime('%H:%M:%S')
-                table += f"{name}  {hit_time}  {start_time}\n"
+                pro_end = datetime.fromisoformat(timer['pro_drop_end'].replace('Z', '+00:00'))
+                start_time = pro_start.strftime('%H:%M:%S').ljust(14)
+                end_time = pro_end.strftime('%H:%M:%S')
+                table += f"{name}  {hit_time}  {start_time}  {end_time}\n"
             else:
                 table += f"{name}  {hit_time}\n"
 
@@ -628,13 +630,14 @@ async def enemy(ctx, player_name: str = None):
         response = make_api_request_with_retry(f"{API_URL}/timers/", payload, headers)
 
         if response.status_code == 200:
-            # Calculate Pro Drop start
+            # Calculate Pro Drop window (same as friendly hit)
             pro_start = now + timedelta(hours=3, minutes=40)
+            pro_end = now + timedelta(hours=4, minutes=20)
 
             logger.info(f"Enemy hit timer recorded for {player_name}")
             await ctx.send(
                 f"⚔️ **{player_name}** got hit by enemy at `{now.strftime('%H:%M:%S')}`\n"
-                f"└─ **Enemy Pro Drop starts:** `{pro_start.strftime('%H:%M:%S')}`"
+                f"└─ **Enemy Pro Drop window:** `{pro_start.strftime('%H:%M:%S')}` - `{pro_end.strftime('%H:%M:%S')}`"
             )
         else:
             logger.error(f"API error: status {response.status_code}")
