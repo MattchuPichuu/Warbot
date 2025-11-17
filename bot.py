@@ -92,23 +92,27 @@ def get_timers_from_api():
 
 def format_timer_dashboard(timers):
     """
-    Format timers into a Discord embed for the dashboard.
+    Format timers into a Discord embed with spreadsheet-style tables.
 
     Args:
         timers: List of timer dictionaries from API
 
     Returns:
-        discord.Embed: Formatted embed with all timers
+        discord.Embed: Formatted embed with spreadsheet-style tables
     """
     embed = discord.Embed(
-        title="⚔️ War Timer Dashboard",
-        description=f"Active Timers: {len(timers)}",
+        title="⚔️ WAR TIMER DASHBOARD",
+        description=f"**Active Timers: {len(timers)}**",
         color=discord.Color.blue(),
         timestamp=datetime.now(timezone.utc)
     )
 
     if not timers:
-        embed.add_field(name="No Active Timers", value="Use `!im_hit`, `!pro_whack`, or `!enemy_hit` to add timers.", inline=False)
+        embed.add_field(
+            name="No Active Timers",
+            value="Use `!hit`, `!whacked`, or `!enemy` to add timers.",
+            inline=False
+        )
         return embed
 
     # Group timers by type
@@ -116,47 +120,72 @@ def format_timer_dashboard(timers):
     pro_whacks = [t for t in timers if t['timer_type'] == 'pro_whack']
     enemy_hits = [t for t in timers if t['timer_type'] == 'enemy_hit']
 
-    # Format friendly hits
+    # Format friendly hits as table
     if friendly_hits:
-        friendly_text = ""
-        for timer in friendly_hits[:10]:  # Limit to 10 per type
+        table = "```\n"
+        table += "PLAYER          HIT TIME   PRO DROP START  PRO DROP END\n"
+        table += "═══════════════════════════════════════════════════════\n"
+
+        for timer in friendly_hits[:15]:
+            name = timer['user_name'][:14].ljust(14)
             time_shot = datetime.fromisoformat(timer['time_shot'].replace('Z', '+00:00'))
-            pro_start = datetime.fromisoformat(timer['pro_drop_start'].replace('Z', '+00:00')) if timer.get('pro_drop_start') else None
-            pro_end = datetime.fromisoformat(timer['pro_drop_end'].replace('Z', '+00:00')) if timer.get('pro_drop_end') else None
+            hit_time = time_shot.strftime('%H:%M:%S')
 
-            friendly_text += f"**{timer['user_name']}** - Hit: `{time_shot.strftime('%H:%M:%S')}`\n"
-            if pro_start and pro_end:
-                friendly_text += f"  └ Pro Drop: `{pro_start.strftime('%H:%M:%S')}` - `{pro_end.strftime('%H:%M:%S')}`\n"
+            if timer.get('pro_drop_start') and timer.get('pro_drop_end'):
+                pro_start = datetime.fromisoformat(timer['pro_drop_start'].replace('Z', '+00:00'))
+                pro_end = datetime.fromisoformat(timer['pro_drop_end'].replace('Z', '+00:00'))
+                start_time = pro_start.strftime('%H:%M:%S').ljust(14)
+                end_time = pro_end.strftime('%H:%M:%S')
+                table += f"{name}  {hit_time}  {start_time}  {end_time}\n"
+            else:
+                table += f"{name}  {hit_time}\n"
 
-        embed.add_field(name="🛡️ Friendly Hits", value=friendly_text or "None", inline=False)
+        table += "```"
+        embed.add_field(name="🛡️ FRIENDLY HITS", value=table, inline=False)
 
-    # Format pro whacks
+    # Format pro whacks as table
     if pro_whacks:
-        pro_text = ""
-        for timer in pro_whacks[:10]:
+        table = "```\n"
+        table += "PLAYER          WHACK TIME  PRO DROP (15 MIN)\n"
+        table += "═══════════════════════════════════════════════\n"
+
+        for timer in pro_whacks[:15]:
+            name = timer['user_name'][:14].ljust(14)
             time_shot = datetime.fromisoformat(timer['time_shot'].replace('Z', '+00:00'))
-            pro_drop = datetime.fromisoformat(timer['pro_drop_start'].replace('Z', '+00:00')) if timer.get('pro_drop_start') else None
+            whack_time = time_shot.strftime('%H:%M:%S')
 
-            pro_text += f"**{timer['user_name']}** - Whacked: `{time_shot.strftime('%H:%M:%S')}`\n"
-            if pro_drop:
-                pro_text += f"  └ Pro Drop: `{pro_drop.strftime('%H:%M:%S')}`\n"
+            if timer.get('pro_drop_start'):
+                pro_drop = datetime.fromisoformat(timer['pro_drop_start'].replace('Z', '+00:00'))
+                drop_time = pro_drop.strftime('%H:%M:%S').ljust(14)
+                table += f"{name}  {whack_time}  {drop_time}\n"
+            else:
+                table += f"{name}  {whack_time}\n"
 
-        embed.add_field(name="💀 Pro Whacks", value=pro_text or "None", inline=False)
+        table += "```"
+        embed.add_field(name="💀 PRO WHACKS", value=table, inline=False)
 
-    # Format enemy hits
+    # Format enemy hits as table
     if enemy_hits:
-        enemy_text = ""
-        for timer in enemy_hits[:10]:
+        table = "```\n"
+        table += "PLAYER          HIT TIME   PRO DROP START\n"
+        table += "═══════════════════════════════════════════\n"
+
+        for timer in enemy_hits[:15]:
+            name = timer['user_name'][:14].ljust(14)
             time_shot = datetime.fromisoformat(timer['time_shot'].replace('Z', '+00:00'))
-            pro_start = datetime.fromisoformat(timer['pro_drop_start'].replace('Z', '+00:00')) if timer.get('pro_drop_start') else None
+            hit_time = time_shot.strftime('%H:%M:%S')
 
-            enemy_text += f"**{timer['user_name']}** - Hit: `{time_shot.strftime('%H:%M:%S')}`\n"
-            if pro_start:
-                enemy_text += f"  └ Pro Drop Start: `{pro_start.strftime('%H:%M:%S')}`\n"
+            if timer.get('pro_drop_start'):
+                pro_start = datetime.fromisoformat(timer['pro_drop_start'].replace('Z', '+00:00'))
+                start_time = pro_start.strftime('%H:%M:%S')
+                table += f"{name}  {hit_time}  {start_time}\n"
+            else:
+                table += f"{name}  {hit_time}\n"
 
-        embed.add_field(name="⚔️ Enemy Hits", value=enemy_text or "None", inline=False)
+        table += "```"
+        embed.add_field(name="⚔️ ENEMY HITS", value=table, inline=False)
 
-    embed.set_footer(text="Updates every 5 seconds")
+    embed.set_footer(text="🔄 Auto-updates every 5 seconds")
     return embed
 
 
