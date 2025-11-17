@@ -5,7 +5,11 @@ A Discord bot integrated with a FastAPI backend for tracking war timers. The sys
 ## Features
 
 - **Discord Bot Integration**: Easy-to-use commands for recording timers
+- **Live Dashboard**: Auto-updating Discord embed showing all active timers
+- **Pro Drop Alerts**: Automatic alerts 5-10 minutes before Pro Drop windows
 - **REST API Backend**: FastAPI-powered backend with full CRUD operations
+- **Web Dashboard**: Browser-based interface with real-time updates
+- **Automatic Calculations**: Pro Drop windows calculated based on timer type
 - **Secure Authentication**: API key-based authentication
 - **Input Validation**: Comprehensive validation for timer types and user data
 - **Error Handling**: Robust error handling with retry logic and logging
@@ -80,8 +84,22 @@ python bot.py
 
 ### Discord Commands
 
+**Timer Commands:**
 - `!im_hit HH:MM:SS` - Record a friendly hit timer
   - Example: `!im_hit 14:30:25`
+- `!pro_whack HH:MM:SS` - Record a pro whack timer
+  - Example: `!pro_whack 09:15:30`
+- `!enemy_hit HH:MM:SS` - Record an enemy hit timer
+  - Example: `!enemy_hit 12:45:00`
+
+**Dashboard Commands:**
+- `!setup_dashboard` - Create a live-updating dashboard in the current channel
+- `!clear_timers` - Clear all active timers
+
+**Features:**
+- **Live Dashboard**: Auto-updates every 5 seconds with all active timers
+- **Pro Drop Alerts**: Automatically alerts users 5-10 minutes before their Pro Drop window
+- **Timezone Aware**: All timestamps are UTC-based
 
 ## API Endpoints
 
@@ -102,11 +120,34 @@ All endpoints require an `X-API-Key` header with a valid API key.
 
 - **DELETE /timers/{timer_id}** - Delete a timer
 
-### Timer Types
+### Timer Types & Pro Drop Calculations
 
-- `friendly_hit` - Friendly fire event
-- `enemy_hit` - Enemy attack event
-- `defensive_hit` - Defensive action event
+- **`friendly_hit`** - Friendly fire event
+  - Pro Drop Start: Time Shot + 3h 40m
+  - Pro Drop End: Time Shot + 4h 20m
+
+- **`pro_whack`** - Pro whack event
+  - Pro Drop: Time Shot + 15m
+
+- **`enemy_hit`** - Enemy attack event
+  - Pro Drop Start: Time Shot + 3h 40m
+  - No end time (enemy window)
+
+## Web App
+
+A web-based dashboard is available at `http://127.0.0.1:8000/web/` when the API server is running.
+
+**Features:**
+- Real-time timer display with auto-refresh (5 seconds)
+- Add new timers through web interface
+- View timers grouped by type (Friendly Hits, Pro Whacks, Enemy Hits)
+- Automatic Pro Drop calculations displayed
+- Responsive design for mobile and desktop
+
+**Usage:**
+1. Start the API server: `uvicorn main:app --reload`
+2. Open your browser to: `http://127.0.0.1:8000/web/`
+3. **Important**: Edit the `API_KEY` variable in the HTML file (`web/index.html`) to match your `.env` file
 
 ## Configuration
 
@@ -117,6 +158,8 @@ Configuration can be customized via environment variables:
 | DISCORD_TOKEN | - | Discord bot token (required) |
 | API_KEY | - | API authentication key (required) |
 | API_URL | http://127.0.0.1:8000 | API base URL |
+| DASHBOARD_CHANNEL_ID | - | Discord channel ID for dashboard (optional) |
+| ALERT_CHANNEL_ID | - | Discord channel ID for alerts (optional, defaults to dashboard channel) |
 | COMMAND_PREFIX | ! | Discord bot command prefix |
 | MAX_API_RETRIES | 3 | Max API request retries |
 | API_TIMEOUT | 10 | API request timeout (seconds) |
@@ -139,6 +182,8 @@ Warbot/
 ├── requirements.txt    # Python dependencies
 ├── .env.example        # Environment template
 ├── README.md           # Documentation
+├── web/                # Web dashboard
+│   └── index.html      # Web interface
 └── war_timer.db        # SQLite database (auto-created)
 ```
 
