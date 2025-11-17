@@ -5,10 +5,10 @@ A Discord bot integrated with a FastAPI backend for tracking war timers. The sys
 ## Features
 
 - **Discord Bot Integration**: Easy-to-use commands for recording timers
+- **Desktop GUI App**: Native Python window for quick timer entry
 - **Live Dashboard**: Auto-updating Discord embed showing all active timers
 - **Pro Drop Alerts**: Automatic alerts 5-10 minutes before Pro Drop windows
 - **REST API Backend**: FastAPI-powered backend with full CRUD operations
-- **Web Dashboard**: Browser-based interface with real-time updates
 - **Automatic Calculations**: Pro Drop windows calculated based on timer type
 - **Secure Authentication**: API key-based authentication
 - **Input Validation**: Comprehensive validation for timer types and user data
@@ -174,22 +174,6 @@ When you click a button, the timer is:
 3. Instantly appears on Discord dashboard
 4. Shows in the desktop app
 
-## Web App
-
-A web-based dashboard is also available at `http://127.0.0.1:8000/web/` when the API server is running.
-
-**Features:**
-- Real-time timer display with auto-refresh (5 seconds)
-- Add new timers through web interface
-- View timers grouped by type (Friendly Hits, Pro Whacks, Enemy Hits)
-- Automatic Pro Drop calculations displayed
-- Responsive design for mobile and desktop
-
-**Usage:**
-1. Start the API server: `uvicorn main:app --reload`
-2. Open your browser to: `http://127.0.0.1:8000/web/`
-3. **Important**: Edit the `API_KEY` variable in the HTML file (`web/index.html`) to match your `.env` file
-
 ## Configuration
 
 Configuration can be customized via environment variables:
@@ -215,6 +199,7 @@ Configuration can be customized via environment variables:
 ```
 Warbot/
 ├── bot.py              # Discord bot
+├── timer_app.py        # Desktop GUI app
 ├── main.py             # FastAPI backend
 ├── models.py           # Data models
 ├── database.py         # Database configuration
@@ -223,8 +208,6 @@ Warbot/
 ├── requirements.txt    # Python dependencies
 ├── .env.example        # Environment template
 ├── README.md           # Documentation
-├── web/                # Web dashboard
-│   └── index.html      # Web interface
 └── war_timer.db        # SQLite database (auto-created)
 ```
 

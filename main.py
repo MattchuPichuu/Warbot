@@ -1,7 +1,5 @@
 """FastAPI backend for War Bot timer management system."""
 from fastapi import FastAPI, Depends, HTTPException, Security
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from typing import List
@@ -9,7 +7,6 @@ import models
 import database
 from auth import get_api_key
 import logging
-import os
 
 # Configure logging
 logging.basicConfig(
@@ -21,19 +18,6 @@ logger = logging.getLogger(__name__)
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="War Timer API", version="1.0.0")
-
-# Configure CORS for web app
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Mount static files if web directory exists
-if os.path.exists("web"):
-    app.mount("/web", StaticFiles(directory="web", html=True), name="web")
 
 # Dependency
 def get_db():
